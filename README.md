@@ -46,18 +46,10 @@ If you execute the program through `mvn exec:java`, then the arguments are provi
 `mvn compile exec:java -Dsched=naive -Dday=all`
 - to replay only day `20110303`: `mvn compile exec:java -Dsched=naive -Dday=20110303`
 
-## Exercices
-
 For this project, you have to develop various VM schedulers.
 To integrate your schedulers within the codebase, you will have to declare your schedulers inside the class `VmAllocationPolicyFactory`.
 
-For each implemented scheduler, provide inside the class header:
-
-- the role
-- the overal design and technical choices
-- the worst-case temporal complexity
-
-### A naive scheduler to start
+## A first fit scheduler to start
 
 This first scheduler aims only at discovering the CloudSim API. This scheduler simply places each `Vm` to the first `Host` having enough free resources (CPU and memory).
 
@@ -70,47 +62,31 @@ This first scheduler aims only at discovering the CloudSim API. This scheduler s
 7. Test your simulator on a single day. If the simulation terminates successfully, all the VMs have been scheduled, all the cloudlets ran, and the provider revenues is displayed.
 8. Test the simulator runs successfully on all the days. For future comparisons, save the daily revenues and the global one. At this stage, it is ok to have penalties due to SLA violations
 	
-## Support for Highly-Available applications
+## Alternative schedulers
 
+Below are different request for features that require to develop alternative schedulers.
+All the scheduler are independent. Try schedulers you are interested in. 
 
 ### Fault-tolerance for replicated applications
 Let consider the VMs run replicated applications. To make them fault-tolerant to node failure, the customer expects to have the replicas running on distinct hosts.
 
 1. Implement a new scheduler (`antiAffinity` flag) that places the Vms with regards to their affinity. In practice, all Vms with an id between [0-99] must be on distinct nodes, the same with Vms having an id between [100-199], [200-299], ... .
 1. What is the impact of such an algorithm over the cluster hosting capacity ? Why ?
-
-### Preparing for disaster recovery
-
-The previous scheduler ensures fault tolerance to some node failures.
-Switches can also fail and in such a circumstance, a lot of nodes become unavailable. Let consider a hierarchical network. The Ml110G4 nodes are connected to one switch. The Ml110G5 to another. Both switches are then interconnected.
-
-1. Write a scheduler (flag `dr`) that ensures fault tolerance to a single switch failure. Balance the replica as possible to minimize the loss in case of failure.
-
-### Fault-tolerance for standalone VMs
-
-When a VM is not replicated (/e.g/ remote desktop scenario), fault-tolerance is obtained by ensuring that if the hosting node crashes, then, it must be possible to restart the VM elsewhere immediatly, on another suitable node. For example, [This figure](figs/1-resilient.png) depicts a viable mapping: if node 1 fails, VM1 can be restarted to N3, if node 2 fails, VM2 can be restarted to N3 and VM1 to N1. Finally, if N3 fails, VM4 can be restarted to N1. [This figure](figs/0-resilient.png) is not fully resilient: if N2 crashes, it is not possible to restart VM2 elsewhere.
-
-1. Implement a new scheduler (`ft` flag) that ensures the fault tolerance to 1 node failure for all the VM having an id that is a multiple of 10.
-
-2. How can we report the infrastructure load in that particular context ?
  
-## Load balancing
+### Load balancing
 
-1. Develop a scheduler that performs load balancing using a [next fit algorithm](http://lmgtfy.com/?q=next+fit+algorithm) (flag `nextFit`). You should observe fewer penalties with regards to the naive scheduler.
-1. Develop another algorithm based on a /worst fit algorithm/ (`worstFit` flag) that balances with regards to both RAM and mips. Justify the method you choosed to consider the two dimensions and an evaluation metric. It is ok to work in a pragmatic manner (different approaches, keep the best) at the moment you prove your statements.
-1. Which algorithms performs the best in terms of reducing the SLA violation. Why ?
+Develop an algorithm based on a /worst fit algorithm/ (`worstFit` flag) that balances with regards to both RAM and mips. There is different solutions to consider the two dimensions and an evaluation metric. Be pragmatic, test alternative implementations and try to observe the consequences in terms of SLA violations.
 
-## Performance satisfaction
+### Performance satisfaction
 
-For a practical understanding of what a SLA violation is in this project, look at the `Revenue` class. Basically, there is a SLA violation when the associated Vm is requiring more MIPS it is possible to get on its host.
-If the SLA is not met then the provider must pay penalties to the client. It is then not desirable to have violations to attract customers and maximize the revenues.
+Implement a scheduler that ensures there can be no SLA violation. Remember the nature of the hypervisor in terms of CPU allocation and the VM templates. The scheduler is effective when you can successfully simulate all the days, with the `Revenue` class reporting no re-fundings due to SLA violation.
 
-1. Implement a scheduler that ensures there can be no SLA violation (`noViolations` flag). Remember the nature of the hypervisor in terms of CPU allocation and the VM templates. The scheduler is effective when you can successfully simulate all the days, with the `Revenue` class reporting no re-fundings due to SLA violation.
+For a practical understanding of what a SLA violation is in this project, look at the `Revenue` class. Basically, there is a SLA violation when the associated Vm is requiring more MIPS it is possible to get on its host. If the SLA is not met then the provider must pay penalties to the client. It is then not desirable to have violations to attract customers and maximize the revenues.
 
-## Energy-efficient schedulers
+### Energy-efficient schedulers
 
-Develop a scheduler (`energy` flag) that reduces the overall energy consumption without relying on VM migration. The resulting simulation must consumes less energy than all the previous schedulers.
+Develop a scheduler that reduces the overall energy consumption without relying on VM migration. The resulting simulation must consumes less energy than all the previous schedulers.
 
-## Greedy scheduler
+### Greedy scheduler
 
 Develop a scheduler that maximizes revenues. It is then important to provide a good trade-off between energy savings and penalties for SLA violation. Justify your choices and the theoretical complexity of the algorithm
