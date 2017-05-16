@@ -2,7 +2,7 @@
 
 This project aims at developing different VM schedulers for a given IaaS cloud. Each scheduler will have meaningful properties for either the cloud customers or the cloud provider.
 
-The implementation and the evaluation will be made over the IaaS cloud simulator [CloudSim](http://www.cloudbus.org/cloudsim/). The simulator will replay a workload extracted from Emulab, on a datacenter having realistic characteristics. 
+The implementation and the evaluation will be made over the IaaS cloud simulator [CloudSim](http://www.cloudbus.org/cloudsim/). The simulator will replay a workload extracted from Emulab, on a datacenter having realistic characteristics (when it was created). 
 
 #### Some usefull resources:
 
@@ -53,17 +53,17 @@ To integrate your schedulers within the codebase, you will have to declare your 
 
 This first scheduler aims only at discovering the CloudSim API. This scheduler simply places each `Vm` to the first `Host` having enough free resources (CPU and memory). The scheduler skeleton is in the class `NaiveVmAllocationPolicy.java`. It is used from the CLI using the `naive` flag.
 
-The 2 `allocateHostForVm` are the core of the Vm scheduler. One of the 2 methods will be executed directly by the simulator each time a Vm is submitted. In these methods, you are in charge of computing the most appropriate host for each Vm.
+The 2 `allocateHostForVm` are the core of the Vm scheduler. One of the 2 methods will be executed directly by the simulator each time a Vm is submitted.
 
-1. Implementing `allocateHostForVm(Vm, Host)` is straighforward as the host is forced. To allocate the Vm on a host look at the method `Host.vmCreate(Vm)`. It allocates and returns true iff the host has sufficient free resources. The method `getHostList()` from `VmAllocationPolicy` allows to get the datacenter nodes. Use the `hoster` attribute to map the host associated to each Vm.
-1. Implement `allocateHostForVm(Vm)` that is the main method of this class. As we said, the scheduler is very simple, it just schedule the `Vm` on the first appropriate `Host`.
+1. Implementing `allocateHostForVm(Vm, Host)` is straighforward as the host is forced. To allocate the Vm on a host look at the method `Host.vmCreate(Vm)`. It allocates and returns true iff the host has sufficient free resources. The method `getHostList()` from `VmAllocationPolicy` returns the datacenter nodes. Use the `hoster` attribute to map the host associated to each Vm.
+1. Implement `allocateHostForVm(Vm)`, the main method of this class. A simple _first fit_ algorithm does the job.
 1. Test your simulator on a single day. If the simulation terminates successfully, all the VMs have been scheduled, all the cloudlets ran, and the provider revenues is displayed.
 1. Test the simulator runs successfully on all the days. For future comparisons, save the daily revenues and the global one. At this stage, it is ok to have penalties due to SLA violations
 	
 ## Alternative schedulers
 
 Below are different request for features that require to develop alternative schedulers.
-All the scheduler are independent. Try schedulers you are interested in. 
+All the scheduler are independent. They are not sorted by difficulty. Implement those you are interested in. 
 
 ### Fault-tolerance for replicated applications
 Let consider the VMs run replicated applications. To make them fault-tolerant to node failure, the customer expects to have the replicas running on distinct hosts.
@@ -73,13 +73,13 @@ Let consider the VMs run replicated applications. To make them fault-tolerant to
  
 ### Load balancing
 
-Develop an algorithm based on a /worst fit algorithm/ (`worstFit` flag) that balances with regards to both RAM and mips. There is different solutions to consider the two dimensions and an evaluation metric. Be pragmatic, test alternative implementations and try to observe the consequences in terms of SLA violations.
+Develop an algorithm based on a _worst fit_ heuristic (`worstFit` flag) that balances with regards to both RAM and mips. There is different solutions to consider the two dimensions. Be pragmatic, test alternative implementations and try to observe the consequences in terms of SLA violations.
 
 ### Performance satisfaction
 
 Implement a scheduler that ensures there can be no SLA violation. Remember the nature of the hypervisor in terms of CPU allocation and the VM templates. The scheduler is effective when you can successfully simulate all the days, with the `Revenue` class reporting no re-fundings due to SLA violation.
 
-For a practical understanding of what a SLA violation is in this project, look at the `Revenue` class. Basically, there is a SLA violation when the associated Vm is requiring more MIPS it is possible to get on its host. If the SLA is not met then the provider must pay penalties to the client. It is then not desirable to have violations to attract customers and maximize the revenues.
+For a practical understanding of what a SLA violation is in this project, look at the `Revenue` class. Basically, there is a SLA violation when the associated Vm is requiring more MIPS it is possible to get on its host. If the SLA is not met then the provider must pay penalties to the client.
 
 ### Energy-efficient schedulers
 
