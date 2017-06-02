@@ -4,6 +4,19 @@ This project aims at developing different VM schedulers for a given IaaS cloud. 
 
 The implementation and the evaluation will be made over the IaaS cloud simulator [CloudSim](http://www.cloudbus.org/cloudsim/). The simulator will replay a workload extracted from Emulab, on a datacenter having realistic characteristics (when it was created). 
 
+The simulated datacentre is made of:
+- 400 HP Proliant Ml111G4 nodes. 2 CPUs (aka. PES) @ 1860 Mips, 4 GB RAM
+- 400 HP Proliant Ml111G5 nodes. 2 CPUs (aka. PES) @ 2660 Mips, 4 GB RAM
+
+The workload consists of 10 random days of Planetlab.
+- 1052 VMs
+- 4 VM templates:
+  - 1x 500 MIPS, 613 MB RAM
+  - ...
+  - 1x 2500 MIPS, 870 MB RAM
+- The Mips requirements for the VMs change over the time
+- All the VMs are launched at the same moment
+ 
 #### Some usefull resources:
 
 - CloudSim [FAQ](https://code.google.com/p/cloudsim/wiki/FAQ#Policies_and_algorithms)
