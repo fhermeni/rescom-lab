@@ -29,7 +29,7 @@ $ tree
 
 #### How to test
 
-`fr.unice.vicc.Main` is the entry point. It can be launch from your IDE (preferred method) or using the command `mvn compile exec:java`.
+`fr.unice.vicc.Main` is the entry point. It can be launch from an IDE or using the command `mvn compile exec:java`.
 
 ```sh
 Usage: Main scheduler [day]
@@ -51,14 +51,14 @@ To integrate your schedulers within the codebase, you will have to declare your 
 
 ## A first fit scheduler to warm up
 
-This first scheduler aims only at discovering the CloudSim API. This scheduler simply places each `Vm` to the first `Host` having enough free resources (CPU and memory). The scheduler skeleton is in the class `NaiveVmAllocationPolicy.java`. It is used from the CLI using the `naive` flag.
+This scheduler aims only at discovering the CloudSim API. This scheduler simply places each `Vm` to the first `Host` having enough free resources (CPU and memory). The skeleton is in the class `NaiveVmAllocationPolicy.java`. It is used from the CLI using the `naive` flag.
 
-The 2 `allocateHostForVm` are the core of the Vm scheduler. One of the 2 methods will be executed directly by the simulator each time a Vm is submitted.
+The 2 `allocateHostForVm` are the core of the Vm scheduler. They are called by the simulator each time a Vm is submitted.
 
 1. Implementing `allocateHostForVm(Vm, Host)` is straighforward as the host is forced. To allocate the Vm on a host look at the method `Host.vmCreate(Vm)`. It allocates and returns true iff the host has sufficient free resources. The method `getHostList()` from `VmAllocationPolicy` returns the datacenter nodes. Use the `hoster` attribute to map the host associated to each Vm.
 1. Implement `allocateHostForVm(Vm)`, the main method of this class. A simple _first fit_ algorithm does the job.
-1. Test your simulator on a single day. If the simulation terminates successfully, all the VMs have been scheduled, all the cloudlets ran, and the provider revenues is displayed.
-1. Test the simulator runs successfully on all the days. For future comparisons, save the daily revenues and the global one. At this stage, it is ok to have penalties due to SLA violations
+1. Test your simulator on a single day. If the simulation terminates successfully, all the VMs have been scheduled and the provider revenues is displayed.
+1. Test the simulator on all the days. For future comparisons, save the daily revenues and the global one. At this stage, it is ok to have penalties due to SLA violations
 	
 ## Alternative schedulers
 
@@ -68,8 +68,7 @@ All the scheduler are independent. They are not sorted by difficulty. Implement 
 ### Fault-tolerance for replicated applications
 Let consider the VMs run replicated applications. To make them fault-tolerant to node failure, the customer expects to have the replicas running on distinct hosts.
 
-1. Implement a new scheduler (`antiAffinity` flag) that places the Vms with regards to their affinity. In practice, all Vms with an id between [0-99] must be on distinct nodes, the same with Vms having an id between [100-199], [200-299], ... .
-1. What is the impact of such an algorithm over the cluster hosting capacity ? Why ?
+Implement a new scheduler (`antiAffinity` flag) that places the Vms with regards to their affinity. In practice, all Vms with an id between [0-99] must be on distinct nodes, the same with Vms having an id between [100-199], [200-299], ... .
  
 ### Load balancing
 
